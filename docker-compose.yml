@@ -18,3 +18,57 @@ services:
     restart: always
     ports:
       - "27017:27017"
+
+  auth-service:
+    build: ./auth-service
+    container_name: delivery-auth
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - JWT_SECRET=chave_secreta_jwt_2026_fallback
+      - DB_USER=postgres
+      - DB_HOST=localhost
+      - DB_NAME=delivery_db
+      - DB_PASS=postgrespassword
+    depends_on:
+      - postgres-db
+
+  catalog-service:
+    build: ./catalog-service
+    container_name: delivery-catalog
+    restart: always
+    ports:
+      - "3002:3002"
+    environment:
+      - MONGO_URL=mongodb://localhost:27017/catalog_db
+    depends_on:
+      - mongodb
+
+  order-service:
+    build: ./order-service
+    container_name: delivery-order
+    restart: always
+    ports:
+      - "3003:3003"
+    environment:
+      - DB_USER=postgres
+      - DB_HOST=localhost
+      - DB_NAME=delivery_db
+      - DB_PASS=postgrespassword
+    depends_on:
+      - postgres-db
+
+  payment-service:
+    build: ./payment-service
+    container_name: delivery-payment
+    restart: always
+    ports:
+      - "3004:3004"
+    environment:
+      - DB_USER=postgres
+      - DB_HOST=localhost
+      - DB_NAME=delivery_db
+      - DB_PASS=postgrespassword
+    depends_on:
+      - postgres-db
