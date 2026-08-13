@@ -2,71 +2,165 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>AIfood - Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alfood - Delivery</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
-        .auth-box { border: 1px solid #ccc; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        .card { border: 1px solid #eee; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
+        body { font-family: 'Inter', sans-serif; background-color: #f5f5f5; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; color: #333; }
+        .auth-container { max-width: 400px; width: 100%; text-align: center; }
+        .main-title { color: #000; font-size: 2.5rem; margin-bottom: 2rem; font-weight: 700; }
+        .auth-card { background-color: #fff; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); }
+        .auth-card h3 { font-size: 1.5rem; margin-top: 0; margin-bottom: 1.5rem; font-weight: 600; text-align: left; color: #000; }
+        
+        .input-group { position: relative; margin-bottom: 1.25rem; }
+        .input-group svg { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; fill: #aaa; }
+        
+        .input-field { width: 100%; padding: 15px 15px 15px 45px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; color: #333; transition: border-color 0.2s; box-sizing: border-box; }
+        .input-field:focus { outline: none; border-color: #f77f00; }
+        
+        .forgot-link { display: block; text-align: right; font-size: 0.9rem; color: #aaa; text-decoration: none; margin-top: -0.75rem; margin-bottom: 1.5rem; }
+        
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .login-btn { flex: 1; padding: 15px; background-color: #f77f00; color: #fff; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
+        .login-btn:hover { background-color: #e67600; }
+        
+        .register-btn { flex: 1; padding: 15px; background-color: #fff; color: #f77f00; border: 2px solid #f77f00; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
+        .register-btn:hover { background-color: #fff3e6; }
+
+        /* Estilos do Catálogo (escondido inicialmente) */
+        #catalog { display: none; margin-top: 2rem; text-align: left; }
+        .card { border: 1px solid #eee; padding: 15px; margin-bottom: 10px; border-radius: 8px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+        .card h3 { margin: 0 0 5px 0; color: #000; }
+        .card p { margin: 0 0 10px 0; color: #666; font-size: 0.9rem; }
+        .order-btn { padding: 8px 15px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <h1>AIfood - Delivery</h1>
-    
-    <div id="auth-section" class="auth-box">
-        <h3>Login</h3>
-        <input type="email" id="email" placeholder="seu@email.com">
-        <input type="password" id="pass" placeholder="Senha">
-        <button onclick="login()">Entrar</button>
-    </div>
+    <div class="auth-container">
+        <h1 class="main-title">Alfood - Delivery</h1>
+        
+        <div id="auth-section" class="auth-card">
+            <h3>Acesse ou Crie sua Conta</h3>
+            
+            <div class="input-group">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"></path></svg>
+                <input type="email" id="email" class="input-field" placeholder="seu@email.com">
+            </div>
+            
+            <div class="input-group">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C9.24 2 7 4.24 7 7v3H6c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2h-1V7c0-2.76-2.24-5-5-5zm-3 5c0-1.66 1.34-3 3-3s3 1.34 3 3v3H9V7zm9 13H6v-8h12v8zm-6-2.5a1.5 1.5 0 11.001-3.001A1.5 1.5 0 0112 17.5z"></path></svg>
+                <input type="password" id="pass" class="input-field" placeholder="Senha segura">
+            </div>
+            
+            <div class="btn-group">
+                <button onclick="login()" class="login-btn">Entrar</button>
+                <button onclick="register()" class="register-btn">Cadastrar</button>
+            </div>
+        </div>
 
-    <div id="catalog" style="display:none;">
-        <h2>Cardápio</h2>
-        <div id="items"></div>
+        <div id="catalog">
+            <h2>Cardápio</h2>
+            <div id="items"></div>
+        </div>
     </div>
 
     <script>
         let authToken = null;
 
-        async function login() {
+        // URLs baseadas no seu GitHub Codespaces
+        const authApi = 'https://laughing-happiness-4j6w7r54555g2q66p-3001.app.github.dev';
+        const catalogApi = 'https://laughing-happiness-4j6w7r54555g2q66p-3002.app.github.dev';
+        const orderApi = 'https://laughing-happiness-4j6w7r54555g2q66p-3003.app.github.dev';
+
+        // Função de Cadastro
+        async function register() {
             const email = document.getElementById('email').value;
-            const res = await fetch('http://localhost:3001/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password: document.getElementById('pass').value })
-            });
-            
-            if (res.ok) {
-                const data = await res.json();
-                authToken = data.token;
-                document.getElementById('auth-section').style.display = 'none';
-                document.getElementById('catalog').style.display = 'block';
-                loadCatalog();
-            } else {
-                alert('Credenciais inválidas!');
+            const password = document.getElementById('pass').value;
+
+            if (!email || !password) {
+                alert('Preencha e-mail e senha para se cadastrar!');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${authApi}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (res.ok || res.status === 201) {
+                    alert('Usuário cadastrado com sucesso! Clique em "Entrar" para acessar.');
+                } else {
+                    alert('Falha ao cadastrar. Verifique se o e-mail já existe.');
+                }
+            } catch (error) {
+                console.error("Erro no cadastro:", error);
+                alert('Erro de conexão com o servidor.');
             }
         }
 
+        // Função de Login
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('pass').value;
+
+            try {
+                const res = await fetch(`${authApi}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    authToken = data.token;
+                    document.getElementById('auth-section').style.display = 'none';
+                    document.getElementById('catalog').style.display = 'block';
+                    loadCatalog();
+                } else {
+                    alert('Credenciais inválidas!');
+                }
+            } catch (error) {
+                console.error("Erro no login:", error);
+                alert('Erro de conexão. A porta 3001 está como Public no Codespaces?');
+            }
+        }
+
+        // Função de Carregar Catálogo
         async function loadCatalog() {
-            const response = await fetch('http://localhost:3002/products', {
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            });
-            const data = await response.json();
-            const container = document.getElementById('items');
-            data.forEach(item => {
-                container.innerHTML += `<div class="card"><h3>${item.name}</h3><button onclick="placeOrder('${item.id}')">Pedir</button></div>`;
-            });
+            try {
+                const response = await fetch(`${catalogApi}/products`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                const container = document.getElementById('items');
+                container.innerHTML = ''; 
+                data.forEach(item => {
+                    container.innerHTML += `<div class="card"><h3>${item.name}</h3><p>Preço: R$ ${item.price.toFixed(2)}</p><button onclick="placeOrder('${item.id}', ${item.price})" class="order-btn">Pedir</button></div>`;
+                });
+            } catch (error) {
+                console.error("Erro ao carregar catálogo:", error);
+                alert('Erro ao carregar cardápio. A porta 3002 está como Public?');
+            }
         }
         
-        async function placeOrder(productId) {
-            const res = await fetch('http://localhost:3003/orders', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify({ product_id: productId, user_id: 1 })
-            });
-            if(res.ok) alert('Pedido realizado com sucesso!');
+        // Função de Fazer Pedido
+        async function placeOrder(productId, productPrice) {
+            try {
+                const res = await fetch(`${orderApi}/orders`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ product_id: productId, user_id: 1, total_price: productPrice })
+                });
+                if(res.ok) alert('Pedido realizado com sucesso!');
+                else alert('Falha ao realizar pedido.');
+            } catch (error) {
+                console.error("Erro ao fazer pedido:", error);
+                alert('Erro ao fechar pedido. A porta 3003 está como Public?');
+            }
         }
     </script>
 </body>

@@ -1,21 +1,31 @@
 const express = require('express');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const { Pool } = require('pg');
+const cors = require('cors'); 
+const { Pool } = require('pg'); // <-- ADICIONE ESTA LINHA PARA O BANCO!
 
 const app = express();
-app.use(express.json());
 
+app.use(cors()); 
+app.use(express.json());
 const JWT_SECRET = process.env.JWT_SECRET || 'chave_secreta_jwt_2026';
 
 // Conexão com o Postgres do Docker no Codespaces
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'delivery_db',
-  password: 'postgrespassword',
-  port: 5432,
+    user: 'postgres',
+    host: process.env.DB_HOST || 'postgres-auth', // <-- TROQUE 'localhost' POR ISSO!
+    database: 'auth_db', // <-- (Verifique se no docker-compose era auth_db ou delivery_db)
+    password: 'postgrespassword',
+    port: 5432,
 });
+pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        role VARCHAR(50) DEFAULT 'CLIENTE'
+    )
+`).then(() => {
+    console.log("Tabela 'users' pronta com password_hash e role!");
+}).catch(err => console.error("Erro ao criar tabela:", err));
 
 app.get('/health', (req, res) => {
   return res.json({ status: 'Auth Service rodando liso com PostgreSQL!' });
@@ -23,17 +33,17 @@ app.get('/health', (req, res) => {
 
 // Cadastrar novo usuário
 app.post('/register', async (req, res) => {
-  const { email, password, role } = req.body;
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const result = await pool.query(
-      'INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3) RETURNING id, email, role',
-      [email, hashedPassword, role || 'CLIENTE']
-    );
-    return res.status(201).json(result.rows[0]);
-  } catch (error) {
-    return res.status(500).json({ error: 'Erro ao registrar: ' + error.message });
-  }
+    const { email, password } = req.body;
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const result = await pool.query(
+            'INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3) RETURNING id, email, role',
+            [email, hashedPassword, 'CLIENTE']
+        );
+        return res.status(201).json(result.rows[0]);
+    } catch (error) {
+        return res.status(500).json({ error: 'Erro ao registrar: ' + error.message });
+    }
 });
 
 // Autenticar usuário
