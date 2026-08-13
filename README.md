@@ -41,4 +41,3 @@ O projeto conta com testes de integração utilizando Jest e Supertest.
 Para rodar os testes do serviço de pedidos, por exemplo, navegue até a pasta order-service e execute:
     ```bash
     npx jest --forceExit
-    

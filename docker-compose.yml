@@ -72,3 +72,9 @@ services:
       - DB_PASS=postgrespassword
     depends_on:
       - postgres-db
+
+    frontend-service:
+  build: ./frontend-service
+  container_name: delivery-frontend
+  ports:
+    - "80:80"
